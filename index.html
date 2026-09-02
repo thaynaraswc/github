@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sua Página no Ar</title>
+<meta name="description" content="Guia passo a passo para publicar um site estático de graça com GitHub e Cloudflare Pages, com os erros mais comuns e como resolver.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+:root{
+  --bg:#ffffff;
+  --panel:#f6f2ed;
+  --panel-2:#efe9e1;
+  --ink:#1c1815;
+  --ink-2:#5f564e;
+  --ink-3:#8c8177;
+  --line:#e4dcd3;
+  --line-strong:#d3c8bb;
+  --accent:#c85a08;
+  --accent-ink:#8f3f05;
+  --accent-soft:#fbeee2;
+  --ok:#1e6e4f;
+  --ok-soft:#e5f1ea;
+  --err:#a92a22;
+  --err-soft:#fbe9e6;
+  --code-bg:#f1ece6;
+  --shadow:0 1px 2px rgba(28,24,21,.05);
+
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#141110;
+    --panel:#1d1917;
+    --panel-2:#241f1c;
+    --ink:#f2ebe4;
+    --ink-2:#b5a99e;
+    --ink-3:#8b7f74;
+    --line:#302926;
+    --line-strong:#463c36;
+    --accent:#ff8c3b;
+    --accent-ink:#ffb079;
+    --accent-soft:#2e1c0d;
+    --ok:#5cc79a;
+    --ok-soft:#12241d;
+    --err:#ff8a76;
+    --err-soft:#2b1512;
+    --code-bg:#1b1714;
+    --shadow:0 1px 2px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141110;
+  --panel:#1d1917;
+  --panel-2:#241f1c;
+  --ink:#f2ebe4;
+  --ink-2:#b5a99e;
+  --ink-3:#8b7f74;
+  --line:#302926;
+  --line-strong:#463c36;
+  --accent:#ff8c3b;
+  --accent-ink:#ffb079;
+  --accent-soft:#2e1c0d;
+  --ok:#5cc79a;
+  --ok-soft:#12241d;
+  --err:#ff8a76;
+  --err-soft:#2b1512;
+  --code-bg:#1b1714;
+  --shadow:0 1px 2px rgba(0,0,0,.4);
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--f-body);
+  font-size:17px;
+  line-height:1.65;
+  font-optical-sizing:auto;
+}
+::selection{background:var(--accent-soft);color:var(--accent-ink)}
+a{color:var(--accent-ink);text-underline-offset:3px;text-decoration-thickness:1px}
+a:hover{text-decoration-thickness:2px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+
+.wrap{max-width:860px;margin:0 auto;padding:0 24px}
+
+/* ---------- topo ---------- */
+.top{border-bottom:1px solid var(--line);background:var(--panel)}
+.top-inner{display:flex;flex-direction:column;gap:28px;padding:56px 24px 44px;max-width:860px;margin:0 auto}
+.eyebrow{
+  font-family:var(--f-mono);font-size:12px;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--accent-ink);margin:0;
+}
+h1{
+  font-family:var(--f-display);font-weight:800;font-size:clamp(38px,7vw,64px);
+  line-height:1.02;letter-spacing:-.02em;margin:0;text-wrap:balance;
+}
+.lede{font-size:20px;line-height:1.55;color:var(--ink-2);margin:0;max-width:62ch}
+.lede strong{color:var(--ink);font-weight:600}
+
+.facts{display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--line-strong);border-radius:3px;background:var(--bg);overflow:hidden}
+.fact{flex:1 1 150px;padding:14px 18px;border-right:1px solid var(--line)}
+.fact:last-child{border-right:0}
+.fact dt{font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin:0 0 3px}
+.fact dd{margin:0;font-family:var(--f-display);font-weight:600;font-size:17px;color:var(--ink)}
+
+/* ---------- fluxo ---------- */
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:0}
+.flow-step{
+  position:relative;padding:14px 16px;background:var(--bg);
+  border:1px solid var(--line-strong);border-radius:3px;
+}
+.flow-step b{display:block;font-family:var(--f-display);font-size:16px;font-weight:600}
+.flow-step span{font-family:var(--f-mono);font-size:11.5px;color:var(--ink-3);letter-spacing:.02em}
+.flow-step::after{
+  content:"→";position:absolute;right:-13px;top:50%;transform:translateY(-50%);
+  color:var(--line-strong);font-size:15px;z-index:1;
+}
+.flow-step:last-child::after{content:none}
+@media (max-width:520px){
+  .flow-step::after{content:"↓";right:auto;left:50%;top:auto;bottom:-15px;transform:translateX(-50%)}
+}
+
+/* ---------- corpo ---------- */
+main{padding:56px 0 0}
+section{margin:0 0 56px}
+h2{
+  font-family:var(--f-display);font-weight:800;font-size:clamp(24px,3.4vw,31px);
+  line-height:1.15;letter-spacing:-.015em;margin:0 0 6px;text-wrap:balance;
+}
+h3{font-family:var(--f-display);font-weight:600;font-size:19px;margin:26px 0 6px;letter-spacing:-.01em}
+p{margin:0 0 14px;max-width:68ch}
+.sub{color:var(--ink-2);margin:0 0 22px;max-width:66ch}
+
+code,kbd{font-family:var(--f-mono);font-size:.86em}
+code{background:var(--code-bg);padding:.14em .38em;border-radius:3px;color:var(--accent-ink);white-space:nowrap}
+kbd{
+  background:var(--bg);border:1px solid var(--line-strong);border-bottom-width:2px;
+  border-radius:4px;padding:.08em .4em;color:var(--ink);white-space:nowrap;
+}
+.ui{
+  font-family:var(--f-mono);font-size:.84em;background:var(--panel-2);
+  border:1px solid var(--line);border-radius:3px;padding:.1em .4em;color:var(--ink);white-space:nowrap;
+}
+
+/* ---------- passos ---------- */
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0}
+.step{
+  display:grid;grid-template-columns:56px 1fr;gap:0 22px;
+  padding:0 0 34px;position:relative;
+}
+.step::before{
+  content:"";position:absolute;left:19px;top:44px;bottom:-4px;width:1px;background:var(--line-strong);
+}
+.step:last-child::before{display:none}
+.step-n{
+  grid-row:span 2;justify-self:start;
+  width:39px;height:39px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--bg);border:1px solid var(--accent);color:var(--accent-ink);
+  font-family:var(--f-mono);font-size:14px;font-weight:700;
+  position:relative;z-index:2;margin-top:3px;
+}
+.step-body{grid-column:2;min-width:0}
+.step-body h2{font-size:clamp(21px,2.8vw,26px);margin-bottom:10px}
+.step-body > :last-child{margin-bottom:0}
+@media (max-width:600px){
+  .step{grid-template-columns:1fr;gap:12px}
+  .step::before{display:none}
+  .step-n{grid-row:auto;margin-top:0}
+  .step-body{grid-column:1}
+}
+
+ul.plain,ol.plain{margin:0 0 14px;padding-left:1.15em;max-width:66ch}
+ul.plain li,ol.plain li{margin-bottom:7px;padding-left:2px}
+ul.plain li::marker{color:var(--accent)}
+ol.plain li::marker{font-family:var(--f-mono);font-size:.85em;color:var(--ink-3)}
+
+/* ---------- avisos ---------- */
+.note{
+  margin:18px 0;padding:14px 18px;border-radius:3px;
+  border-left:3px solid var(--line-strong);background:var(--panel);
+}
+.note > :last-child{margin-bottom:0}
+.note p{max-width:62ch}
+.note-label{
+  display:block;font-family:var(--f-mono);font-size:11px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;margin:0 0 5px;
+}
+.note.alert{border-left-color:var(--accent);background:var(--accent-soft)}
+.note.alert .note-label{color:var(--accent-ink)}
+.note.trap{border-left-color:var(--err);background:var(--err-soft)}
+.note.trap .note-label{color:var(--err)}
+.note.check{border-left-color:var(--ok);background:var(--ok-soft)}
+.note.check .note-label{color:var(--ok)}
+
+/* ---------- campos de configuração ---------- */
+.fields{
+  border:1px solid var(--line-strong);border-radius:3px;overflow:hidden;
+  margin:18px 0;background:var(--bg);
+}
+.field{display:grid;grid-template-columns:minmax(140px,38%) 1fr;border-top:1px solid var(--line)}
+.field:first-child{border-top:0}
+.field dt{
+  padding:11px 16px;background:var(--panel);font-family:var(--f-mono);
+  font-size:12.5px;color:var(--ink-2);border-right:1px solid var(--line);
+}
+.field dd{margin:0;padding:11px 16px;font-family:var(--f-mono);font-size:12.5px;font-weight:700;color:var(--ink)}
+.field dd em{font-style:normal;font-weight:400;color:var(--ink-3)}
+@media (max-width:520px){
+  .field{grid-template-columns:1fr}
+  .field dt{border-right:0;border-bottom:1px solid var(--line)}
+}
+
+/* ---------- tabela de erros ---------- */
+.table-scroll{overflow-x:auto;border:1px solid var(--line-strong);border-radius:3px;margin:22px 0}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:15px}
+caption{text-align:left;padding:0 0 10px;color:var(--ink-3);font-size:14px}
+th,td{text-align:left;vertical-align:top;padding:12px 16px;border-bottom:1px solid var(--line)}
+thead th{
+  background:var(--panel);font-family:var(--f-mono);font-size:11px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);white-space:nowrap;
+}
+tbody tr:last-child td{border-bottom:0}
+tbody th{font-family:var(--f-display);font-weight:600;font-size:15.5px;width:27%;background:transparent}
+td.fix{color:var(--ink)}
+td.cause{color:var(--ink-2)}
+
+/* ---------- checklist ---------- */
+.checklist{list-style:none;margin:0;padding:0;border:1px solid var(--line-strong);border-radius:3px;overflow:hidden}
+.checklist li{border-top:1px solid var(--line);background:var(--bg)}
+.checklist li:first-child{border-top:0}
+.checklist label{display:flex;gap:13px;align-items:flex-start;padding:13px 17px;cursor:pointer}
+.checklist input{
+  appearance:none;-webkit-appearance:none;flex:0 0 auto;
+  width:18px;height:18px;margin:3px 0 0;border:1.5px solid var(--line-strong);
+  border-radius:3px;background:var(--bg);cursor:pointer;position:relative;
+}
+.checklist input:checked{background:var(--ok);border-color:var(--ok)}
+.checklist input:checked::after{
+  content:"";position:absolute;left:5px;top:1px;width:5px;height:10px;
+  border:solid var(--bg);border-width:0 2px 2px 0;transform:rotate(42deg);
+}
+.checklist input:checked ~ span{color:var(--ink-3);text-decoration:line-through}
+.checklist span{font-size:16px;line-height:1.5}
+
+/* ---------- rodapé ---------- */
+footer{
+  border-top:1px solid var(--line);margin-top:16px;padding:32px 0 60px;
+  color:var(--ink-3);font-size:14.5px;
+}
+footer p{max-width:64ch;margin:0 0 8px}
+footer code{font-size:.85em}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <p class="eyebrow">Guia prático · site estático</p>
+    <h1>Sua página no ar</h1>
+    <p class="lede">Do arquivo <code>index.html</code> parado na sua pasta até um endereço público com HTTPS — usando <strong>GitHub</strong> para guardar o código e <strong>Cloudflare Pages</strong> para servir. Sem terminal, sem hospedagem paga, sem cartão de crédito.</p>
+    <dl class="facts">
+      <div class="fact"><dt>Tempo</dt><dd>15 a 20 min</dd></div>
+      <div class="fact"><dt>Custo</dt><dd>R$ 0,00</dd></div>
+      <div class="fact"><dt>Você precisa</dt><dd>Navegador e e-mail</dd></div>
+      <div class="fact"><dt>Resultado</dt><dd>URL <code>.pages.dev</code></dd></div>
+    </dl>
+    <div class="flow">
+      <div class="flow-step"><b>Pasta local</b><span>index.html + imagens</span></div>
+      <div class="flow-step"><b>GitHub</b><span>repositório + commit</span></div>
+      <div class="flow-step"><b>Cloudflare Pages</b><span>build e deploy</span></div>
+      <div class="flow-step"><b>No ar</b><span>seu-site.pages.dev</span></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section>
+    <h2>Como este guia funciona</h2>
+    <p class="sub">São 8 passos em ordem. Pular um deles é a causa de quase todo erro que aparece no final — em especial o passo 3, onde a maioria das pessoas para no meio sem perceber.</p>
+    <div class="note alert">
+      <span class="note-label">Leia antes</span>
+      <p>Três tipos de aviso aparecem ao longo do caminho: <strong>Atenção</strong> (detalhe que costuma passar batido), <strong>Erro comum</strong> (o que quebra e por quê) e <strong>Confira</strong> (como saber que o passo deu certo antes de seguir).</p>
+    </div>
+  </section>
+
+  <ol class="steps">
+
+    <li class="step">
+      <div class="step-n">1</div>
+      <div class="step-body">
+        <h2>Prepare a pasta no seu computador</h2>
+        <p>Junte tudo o que a página usa em <strong>uma única pasta</strong>: o HTML, as imagens, e o CSS ou JS se estiverem em arquivos separados. Se você pediu o código a uma IA, peça o HTML completo e baixe também cada imagem citada — o link temporário de um chat some depois.</p>
+        <ul class="plain">
+          <li>O arquivo principal <strong>tem que se chamar</strong> <code>index.html</code>, tudo em minúsculo. É o nome que qualquer servidor procura quando alguém abre o endereço raiz.</li>
+          <li>Nomes de arquivo sem espaço, sem acento e sem maiúsculas: use <code>foto-capa.jpg</code>, não <code>Foto Capa.JPG</code>.</li>
+          <li>Os caminhos dentro do HTML precisam ser relativos: <code>&lt;img src="foto-capa.jpg"&gt;</code>. Se aparecer <code>C:\Users\...</code> ou <code>/Users/...</code>, a imagem só existe no seu computador.</li>
+        </ul>
+        <div class="note alert">
+          <span class="note-label">Atenção</span>
+          <p>O servidor da Cloudflare roda Linux e <strong>diferencia maiúsculas de minúsculas</strong>. No Windows e no Mac, <code>Foto.JPG</code> e <code>foto.jpg</code> são o mesmo arquivo; no ar, são dois arquivos diferentes — e um deles não existe.</p>
+        </div>
+        <div class="note check">
+          <span class="note-label">Confira</span>
+          <p>Dê dois cliques no <code>index.html</code> e abra no navegador. Tudo o que estiver quebrado aqui vai continuar quebrado depois de publicado — o deploy não conserta caminho errado.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="step">
+      <div class="step-n">2</div>
+      <div class="step-body">
+        <h2>Crie a conta e o repositório no GitHub</h2>
+        <p>O GitHub é onde o código fica guardado. Um <strong>repositório</strong> é a pasta desse código lá dentro — e é ele que a Cloudflare vai ler.</p>
+        <ol class="plain">
+          <li>Acesse <a href="https://github.com" target="_blank" rel="noopener">github.com</a> e crie a conta (gratuita).</li>
+          <li>No canto superior direito, clique em <span class="ui">+</span> e depois em <span class="ui">New repository</span>.</li>
+          <li>Em <span class="ui">Repository name</span>, use um nome curto, sem espaço e sem acento: <code>pagina-no-ar</code>.</li>
+          <li>Marque <span class="ui">Public</span>. Não há problema: só o código da página fica visível, e é o caminho mais simples.</li>
+          <li>Clique em <span class="ui">Create repository</span>.</li>
+        </ol>
+        <div class="note alert">
+          <span class="note-label">Atenção</span>
+          <p>A tela seguinte mostra instruções de <code>git</code> por HTTPS e SSH. <strong>Ignore tudo isso</strong> — neste guia o envio é pelo navegador, sem instalar nada. Nunca coloque senha, chave de API ou dado pessoal dentro dos arquivos: em repositório público, qualquer pessoa lê.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="step">
+      <div class="step-n">3</div>
+      <div class="step-body">
+        <h2>Envie os arquivos <em>e</em> confirme o commit</h2>
+        <p>Este é o passo em que quase todo mundo tropeça. Enviar os arquivos e confirmar o envio são <strong>duas ações separadas</strong> no GitHub.</p>
+        <ol class="plain">
+          <li>Na tela do repositório, clique em <span class="ui">uploading an existing file</span> (ou <span class="ui">Add file → Upload files</span>).</li>
+          <li>Abra sua pasta e arraste <strong>os arquivos de dentro dela</strong> — não a pasta inteira, não um <code>.zip</code>.</li>
+          <li>Role até o fim da página e clique no botão verde <span class="ui">Commit changes</span>.</li>
+        </ol>
+        <div class="note trap">
+          <span class="note-label">Erro comum</span>
+          <p>Parar depois de arrastar os arquivos. Sem clicar em <span class="ui">Commit changes</span>, nada foi gravado no repositório — e o deploy na Cloudflare falha com uma mensagem de que não há arquivos para publicar. Se isso acontecer, volte aqui, dê o commit e mande a Cloudflare tentar de novo (<span class="ui">Retry deployment</span>).</p>
+        </div>
+        <div class="note check">
+          <span class="note-label">Confira</span>
+          <p>Recarregue a página inicial do repositório. Você precisa <strong>ver <code>index.html</code> na lista de arquivos</strong>, com a mensagem do commit ao lado. Se a lista estiver vazia ou só com o <code>README.md</code>, o commit não foi feito.</p>
+        </div>
+        <div class="note alert">
+          <span class="note-label">Atenção</span>
+          <p>O upload pelo navegador aceita até <strong>100 arquivos por vez</strong> e <strong>25 MB por arquivo</strong>. Imagem de celular costuma ter 5 a 10 MB: comprima antes, senão a página fica lenta para quem acessa.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="step">
+      <div class="step-n">4</div>
+      <div class="step-body">
+        <h2>Crie o projeto na Cloudflare Pages</h2>
+        <p>A Cloudflare é quem entrega a página para o mundo. O plano gratuito já inclui HTTPS, CDN global e deploys ilimitados.</p>
+        <ol class="plain">
+          <li>Acesse <a href="https://dash.cloudflare.com" target="_blank" rel="noopener">dash.cloudflare.com</a> e crie a conta.</li>
+          <li>No menu lateral, procure por <span class="ui">Workers &amp; Pages</span> e clique.</li>
+          <li>Botão azul <span class="ui">Create application</span> → aba <span class="ui">Pages</span> → <span class="ui">Connect to Git</span>.</li>
+          <li>Escolha <span class="ui">GitHub</span> e autorize com seu login do GitHub.</li>
+          <li>Na tela de permissão, marque <span class="ui">Only select repositories</span>, escolha <strong>apenas o repositório que você criou</strong> e clique em <span class="ui">Install &amp; Authorize</span>.</li>
+        </ol>
+        <div class="note alert">
+          <span class="note-label">Atenção</span>
+          <p>Se depois a Cloudflare não listar seu repositório, é porque a permissão ficou restrita a outro. Corrija no GitHub em <span class="ui">Settings → Applications → Cloudflare Pages → Configure</span>, adicionando o repositório certo.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="step">
+      <div class="step-n">5</div>
+      <div class="step-body">
+        <h2>Configure o deploy e publique</h2>
+        <p>Selecione seu repositório, clique em <span class="ui">Begin setup</span> e preencha exatamente assim — o site é estático, então <strong>não existe etapa de build</strong>:</p>
+        <dl class="fields">
+          <div class="field"><dt>Project name</dt><dd>pagina-no-ar <em>— vira o endereço</em></dd></div>
+          <div class="field"><dt>Production branch</dt><dd>main</dd></div>
+          <div class="field"><dt>Framework preset</dt><dd>None</dd></div>
+          <div class="field"><dt>Build command</dt><dd><em>(deixe vazio)</em></dd></div>
+          <div class="field"><dt>Build output directory</dt><dd>/ <em>— a raiz</em></dd></div>
+        </dl>
+        <p>Clique em <span class="ui">Save and Deploy</span> e aguarde. O log mostra <code>Cloning repository</code>, depois <code>Success: Assets published</code>.</p>
+        <div class="note trap">
+          <span class="note-label">Erro comum</span>
+          <p>Preencher <span class="ui">Build command</span> com algo como <code>npm run build</code> por hábito. Seu projeto não tem <code>package.json</code>, então o build falha na hora. Campo vazio é o correto para HTML puro.</p>
+        </div>
+        <div class="note alert">
+          <span class="note-label">Atenção</span>
+          <p>Se você subiu os arquivos dentro de uma subpasta no GitHub (ex.: <code>site/index.html</code>), o <span class="ui">Build output directory</span> precisa ser <code>site</code>, e não <code>/</code>. Se aparecer uma oferta de plano pago no fim, pode fechar em <span class="ui">Maybe later</span>.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="step">
+      <div class="step-n">6</div>
+      <div class="step-body">
+        <h2>Abra a página no ar</h2>
+        <p>Terminado o deploy, a Cloudflare mostra o endereço <code>nome-do-projeto.pages.dev</code>. Clique nele.</p>
+        <div class="note check">
+          <span class="note-label">Confira</span>
+          <p>A página carrega com <strong>cadeado de HTTPS</strong> e as imagens aparecem. Teste também no celular, com dados móveis em vez do Wi-Fi — assim você garante que está vendo a versão pública, e não um arquivo em cache da sua máquina.</p>
+        </div>
+        <div class="note alert">
+          <span class="note-label">Atenção</span>
+          <p>Erro <code>404</code> nos primeiros minutos costuma ser propagação, não defeito: espere de 1 a 5 minutos e recarregue com <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> (ou <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> no Mac). Se persistir, é nome de arquivo ou pasta de saída — veja a tabela no fim.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="step">
+      <div class="step-n">7</div>
+      <div class="step-body">
+        <h2>Ligue um domínio próprio <em>(opcional)</em></h2>
+        <p>Para trocar <code>pagina-no-ar.pages.dev</code> por <code>www.seusite.com.br</code>, você precisa de um domínio registrado — no Brasil, em <a href="https://registro.br" target="_blank" rel="noopener">registro.br</a> ou em qualquer registrador.</p>
+        <ol class="plain">
+          <li>No projeto, abra a aba <span class="ui">Custom domains</span> → <span class="ui">Set up a domain</span>.</li>
+          <li>Digite o domínio e siga as instruções do painel.</li>
+          <li>Se o domínio já estiver na Cloudflare, o registro <code>CNAME</code> é criado sozinho. Se estiver em outro lugar, copie o valor mostrado e cadastre o <code>CNAME</code> no painel do seu registrador.</li>
+        </ol>
+        <div class="note alert">
+          <span class="note-label">Atenção</span>
+          <p>Mudança de DNS leva de alguns minutos a <strong>24 horas</strong> para propagar, e o certificado HTTPS do domínio novo só é emitido depois disso. Erro de certificado nas primeiras horas é esperado. Cadastre as duas versões — com e sem <code>www</code> — para não deixar um dos endereços fora do ar.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="step">
+      <div class="step-n">8</div>
+      <div class="step-body">
+        <h2>Atualize a página depois</h2>
+        <p>A partir daqui a Cloudflare fica <strong>observando o repositório</strong>. Você nunca mais mexe no painel dela para publicar uma mudança.</p>
+        <ol class="plain">
+          <li>No GitHub, edite o arquivo pelo ícone de lápis, ou envie a versão nova por <span class="ui">Add file → Upload files</span>.</li>
+          <li>Clique em <span class="ui">Commit changes</span>.</li>
+          <li>O deploy dispara sozinho e leva cerca de um minuto.</li>
+        </ol>
+        <div class="note check">
+          <span class="note-label">Confira</span>
+          <p>Se você alterou e a página parece igual, quase sempre é o cache do navegador: recarregue com <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> ou abra em aba anônima. Em <span class="ui">Deployments</span> você vê o histórico e pode voltar a uma versão anterior com <span class="ui">Rollback</span> quando alguma alteração quebrar o site.</p>
+        </div>
+      </div>
+    </li>
+
+  </ol>
+
+  <section>
+    <h2>Quando der errado</h2>
+    <p class="sub">Os sete problemas que respondem por quase todos os travamentos, na ordem em que costumam aparecer.</p>
+    <div class="table-scroll">
+      <table>
+        <caption>Diagnóstico rápido — do sintoma à correção.</caption>
+        <thead>
+          <tr><th scope="col">Sintoma</th><th scope="col">Causa provável</th><th scope="col">Correção</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Deploy falha logo no início</th>
+            <td class="cause">Arquivos enviados mas sem commit — o repositório está vazio.</td>
+            <td class="fix">Volte ao GitHub, clique em <span class="ui">Commit changes</span> e depois em <span class="ui">Retry deployment</span>.</td>
+          </tr>
+          <tr>
+            <th scope="row">404 na URL <code>.pages.dev</code></th>
+            <td class="cause">O arquivo não se chama <code>index.html</code>, ou está dentro de uma subpasta.</td>
+            <td class="fix">Renomeie para <code>index.html</code> minúsculo, ou ajuste o <span class="ui">Build output directory</span> para o nome da subpasta.</td>
+          </tr>
+          <tr>
+            <th scope="row">Página abre em branco</th>
+            <td class="cause">HTML incompleto, ou o conteúdo veio dentro de um bloco de código copiado do chat.</td>
+            <td class="fix">Abra o arquivo local no navegador. Se quebrar lá, o problema é o HTML, não a hospedagem.</td>
+          </tr>
+          <tr>
+            <th scope="row">Imagens não aparecem</th>
+            <td class="cause">Caminho absoluto do computador, ou diferença de maiúsculas no nome.</td>
+            <td class="fix">Use caminho relativo e o nome idêntico ao do arquivo enviado, letra por letra.</td>
+          </tr>
+          <tr>
+            <th scope="row">Build falha na hora</th>
+            <td class="cause"><span class="ui">Framework preset</span> ou <span class="ui">Build command</span> preenchidos num site estático.</td>
+            <td class="fix">Em <span class="ui">Settings → Builds &amp; deployments</span>: preset <code>None</code> e comando vazio.</td>
+          </tr>
+          <tr>
+            <th scope="row">Alterei e nada mudou</th>
+            <td class="cause">Faltou o commit, ou é cache do navegador.</td>
+            <td class="fix">Confira em <span class="ui">Deployments</span> se há deploy novo; recarregue com <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd>.</td>
+          </tr>
+          <tr>
+            <th scope="row">Domínio próprio não abre</th>
+            <td class="cause">DNS ainda propagando ou <code>CNAME</code> incorreto.</td>
+            <td class="fix">Aguarde até 24h e confira o <code>CNAME</code> no registrador. Enquanto isso, o <code>.pages.dev</code> continua funcionando.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Checklist final</h2>
+    <p class="sub">Marque conforme avança — o navegador guarda o progresso neste dispositivo.</p>
+    <ul class="checklist" id="checklist">
+      <li><label><input type="checkbox" data-k="c1"><span>Arquivo principal chamado <code>index.html</code>, em minúsculo</span></label></li>
+      <li><label><input type="checkbox" data-k="c2"><span>Imagens na mesma pasta, com caminhos relativos e nomes sem acento</span></label></li>
+      <li><label><input type="checkbox" data-k="c3"><span>Página testada localmente antes de subir</span></label></li>
+      <li><label><input type="checkbox" data-k="c4"><span>Repositório criado no GitHub</span></label></li>
+      <li><label><input type="checkbox" data-k="c5"><span><strong>Commit feito</strong> — os arquivos aparecem na lista do repositório</span></label></li>
+      <li><label><input type="checkbox" data-k="c6"><span>Cloudflare Pages conectado ao GitHub com o repositório certo</span></label></li>
+      <li><label><input type="checkbox" data-k="c7"><span>Build command vazio e output directory na raiz</span></label></li>
+      <li><label><input type="checkbox" data-k="c8"><span>URL <code>.pages.dev</code> abrindo com HTTPS, testada no celular</span></label></li>
+      <li><label><input type="checkbox" data-k="c9"><span>Domínio próprio configurado <em>(opcional)</em></span></label></li>
+    </ul>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  <p>Este guia é uma página estática — o próprio tipo de arquivo que você acabou de publicar. Se ele estiver no seu repositório com o nome <code>index.html</code>, a Cloudflare já o serve como está.</p>
+  <p>Não gostou da Cloudflare? O mesmo repositório funciona no GitHub Pages, na Vercel e na Netlify, com passos equivalentes. Se preferir servidor próprio ou VPS, basta copiar os arquivos para a pasta pública do servidor web.</p>
+</footer>
+
+<script>
+(function(){
+  var boxes = document.querySelectorAll('#checklist input[type="checkbox"]');
+  var KEY = 'pagina-no-ar:checklist';
+  var state = {};
+  try { state = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { state = {}; }
+  boxes.forEach(function(box){
+    if (state[box.dataset.k]) box.checked = true;
+    box.addEventListener('change', function(){
+      state[box.dataset.k] = box.checked;
+      try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
